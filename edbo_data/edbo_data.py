@@ -5,6 +5,8 @@ from importlib.metadata import version
 from python_support.configuration import MyConfig  # type: ignore
 from python_support.logging import MyLogger  # type: ignore
 
+from .fetching.fetch_smhi import FetchSMHI
+
 LOGGER_NAME = "EDBO_DATA"
 
 log = logging.getLogger(LOGGER_NAME)
@@ -27,6 +29,12 @@ def main() -> None:
         action="store_true",
         help="Displays the version of the package",
     )
+    parser.add_argument(
+        "-fs",
+        "--fetch_smhi",
+        action="store_true",
+        help="Fetch data from SMHI",
+    )
     args = parser.parse_args()
 
     if args.version:
@@ -43,6 +51,10 @@ def main() -> None:
 
     config = MyConfig("ED_CONFIG")
     log.info(f"Configuration loaded {config.temp_var}")
+
+    if args.fetch_smhi:
+        fetch_smhi = FetchSMHI()
+        fetch_smhi.fetch()
 
 
 if __name__ == "__main__":

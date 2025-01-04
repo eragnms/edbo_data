@@ -9,3 +9,5 @@ pytest
 debugpy
 setuptools
 git+ssh://git@github.com/eragnms/python_support.git@main
+smhi_pkg
+aiohttp
