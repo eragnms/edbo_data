@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name="edbo_data"
+version="0.0.1"
+authors = [
+  { name="Mats Gustafsson", email="matsgus71@gmail.com" },
+]
+description = "My Python template"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "package_1",
+]
+[project.scripts]
+fetch-articles = "edbo_data.<script_1>:main"
