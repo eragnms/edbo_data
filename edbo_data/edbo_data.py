@@ -42,7 +42,7 @@ def main() -> None:
     MyLogger().setup_logger(level, LOGGER_NAME)
 
     config = MyConfig("ED_CONFIG")
-    log.info(f"Configuration loaded {config._temp_var}")
+    log.info(f"Configuration loaded {config.temp_var}")
 
 
 if __name__ == "__main__":
