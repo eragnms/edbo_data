@@ -17,7 +17,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "package_1",
+    "python_support@git+https://git@github.com/eragnms/python_support.git@main",
+    "smhi_pkg",
+    "aiohttp",
 ]
 [project.scripts]
-fetch-articles = "edbo_data.<script_1>:main"
+edbo-data = "edbo_data.edbo_data:main"
