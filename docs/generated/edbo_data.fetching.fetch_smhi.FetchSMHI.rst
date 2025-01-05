@@ -1,4 +1,0 @@
-﻿%(autoclass)s
-===============
-
-%(methods)s

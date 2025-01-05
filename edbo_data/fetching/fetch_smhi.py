@@ -1,6 +1,7 @@
 """Fetch data from SMHI API
 
-Uses the SMHI API to fetch weather data for a specific location see,
+Uses the SMHI API to fetch weather data for a specific location see:
+
 - http://opendata.smhi.se/apidocs/metfcst/index.html
 - https://github.com/joysoftware/pypi_smhi?tab=readme-ov-file
 """

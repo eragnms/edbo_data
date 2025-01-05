@@ -13,3 +13,5 @@ smhi_pkg
 aiohttp
 sphinx_rtd_theme
 sphinx-autodoc-typehints
+lnetatmo
+requests

@@ -5,6 +5,7 @@ from importlib.metadata import version
 from python_support.configuration import MyConfig  # type: ignore
 from python_support.logging import MyLogger  # type: ignore
 
+from .fetching.fetch_netatmo import FetchNetatmo
 from .fetching.fetch_smhi import FetchSMHI
 
 LOGGER_NAME = "EDBO_DATA"
@@ -35,6 +36,12 @@ def main() -> None:
         action="store_true",
         help="Fetch data from SMHI",
     )
+    parser.add_argument(
+        "-fn",
+        "--fetch_netatmo",
+        action="store_true",
+        help="Fetch data from Netatmo",
+    )
     args = parser.parse_args()
 
     if args.version:
@@ -61,6 +68,10 @@ def main() -> None:
                 f"Forecast: {f.valid_time}, {f.temperature_min} - "
                 f"{f.temperature_max} degrees Celsius"
             )
+    if args.fetch_netatmo:
+        fetch_netatmo = FetchNetatmo()
+        data = fetch_netatmo.get_data()
+        log.info(f"Netatmo data: {data}")
 
 
 if __name__ == "__main__":
