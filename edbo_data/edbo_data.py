@@ -55,6 +55,12 @@ def main() -> None:
         fetch_smhi = FetchSMHI(config.map_latitude, config.map_longitude)
         current = fetch_smhi.get_current_conditions()
         log.info(f"Current conditions: {fetch_smhi.forecast_to_conditions(current)}")
+        forecast = fetch_smhi.get_forecast_hour()
+        for f in forecast:
+            log.info(
+                f"Forecast: {f.valid_time}, {f.temperature_min} - "
+                f"{f.temperature_max} degrees Celsius"
+            )
 
 
 if __name__ == "__main__":

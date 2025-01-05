@@ -32,7 +32,7 @@ class FetchSMHI:
         """
         smhi = Smhi(longitude=self._longitude, latitude=self._latitude)
         forecasts: list[SmhiForecast] = smhi.get_forecast()
-        return forecasts
+        return forecasts[1:]
 
     def get_forecast_hour(self) -> list[SmhiForecast]:
         """Retrieve the hourly weather forecast.
@@ -42,7 +42,7 @@ class FetchSMHI:
         """
         smhi = Smhi(longitude=self._longitude, latitude=self._latitude)
         forecasts: list[SmhiForecast] = smhi.get_forecast_hour()
-        return forecasts
+        return forecasts[1:]
 
     def get_current_conditions(self) -> SmhiForecast:
         """Retrieve the current weather conditions.
@@ -68,6 +68,8 @@ class FetchSMHI:
         return {
             "valid_time": forecast.valid_time,
             "temperature": forecast.temperature,
+            "temperature_min": forecast.temperature_min,
+            "temperature_max": forecast.temperature_max,
             "wind_speed": forecast.wind_speed,
             "wind_direction": forecast.wind_direction,
             "wind_gust": forecast.wind_gust,
