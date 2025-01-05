@@ -50,11 +50,11 @@ def main() -> None:
     MyLogger().setup_logger(level, LOGGER_NAME)
 
     config = MyConfig("ED_CONFIG")
-    log.info(f"Configuration loaded {config.temp_var}")
 
     if args.fetch_smhi:
-        fetch_smhi = FetchSMHI()
-        fetch_smhi.fetch()
+        fetch_smhi = FetchSMHI(config.map_latitude, config.map_longitude)
+        current = fetch_smhi.get_current_conditions()
+        log.info(f"Current conditions: {fetch_smhi.forecast_to_conditions(current)}")
 
 
 if __name__ == "__main__":
