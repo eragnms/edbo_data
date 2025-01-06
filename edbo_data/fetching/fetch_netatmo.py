@@ -1,11 +1,6 @@
 """Fetch data from my Netatmo weather station
 
 - https://github.com/philippelt/netatmo-api-python
-- https://github.com/philippelt/netatmo-api-python/blob/master/usage.md
-- https://snyk.io/advisor/python/pyatmo/example
-
-Maybe skip Netatmo API and use the Raspberry Pi weather station project instead:
-- https://projects.raspberrypi.org/en/projects/build-your-own-weather-station/2
 """
 
 import logging
