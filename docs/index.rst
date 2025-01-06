@@ -7,7 +7,6 @@ Welcome to edbo_data's documentation!
 
    about
    package
-   authentication
 
 Indices and tables
 ==================
