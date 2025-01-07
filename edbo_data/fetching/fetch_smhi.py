@@ -6,6 +6,8 @@ Uses the SMHI API to fetch weather data for a specific location see:
 - https://github.com/joysoftware/pypi_smhi?tab=readme-ov-file
 """
 
+from datetime import datetime
+
 from smhi.smhi_lib import Smhi, SmhiForecast  # type: ignore
 
 
@@ -57,7 +59,7 @@ class FetchSMHI:
 
     def forecast_to_conditions(
         self, forecast: SmhiForecast
-    ) -> dict[str, int | str | float]:
+    ) -> dict[str, int | str | float | datetime]:
         """Convert a forecast to a dictionary of conditions.
 
         Args:

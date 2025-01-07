@@ -1,6 +1,8 @@
 import argparse
 import logging
+from datetime import datetime
 from importlib.metadata import version
+from typing import cast
 
 from python_support.configuration import MyConfig  # type: ignore
 from python_support.logging import MyLogger  # type: ignore
@@ -62,11 +64,19 @@ def main() -> None:
         fetch_smhi = FetchSMHI(config.map_latitude, config.map_longitude)
         current = fetch_smhi.get_current_conditions()
         log.info(f"Current conditions: {fetch_smhi.forecast_to_conditions(current)}")
-        forecast = fetch_smhi.get_forecast_hour()
+        forecast = fetch_smhi.get_forecast()
         for f in forecast:
+            conditions = fetch_smhi.forecast_to_conditions(f)
+            valid_time = cast(datetime, conditions["valid_time"])
+            date_str = valid_time.strftime("%A, %d %B")
             log.info(
-                f"Forecast: {f.valid_time}, {f.temperature_min} - "
-                f"{f.temperature_max} degrees Celsius"
+                f"{date_str}, "
+                f"{conditions['temperature_min']} to "
+                f"{conditions['temperature_max']} degrees Celsius, "
+                f"{conditions['precipitation']} mm precipitation, "
+                f"{conditions['wind_speed']} m/s wind speed, "
+                f"{conditions['wind_direction']} wind direction, "
+                f"{conditions['symbol_string']}"
             )
     if args.fetch_netatmo:
         fetch_netatmo = FetchNetatmo()
