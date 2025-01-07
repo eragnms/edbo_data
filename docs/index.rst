@@ -6,6 +6,7 @@ Welcome to edbo_data's documentation!
    :caption: Contents:
 
    about
+   installation
    package
 
 Indices and tables

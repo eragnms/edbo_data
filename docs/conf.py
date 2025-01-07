@@ -4,7 +4,8 @@ import sys
 # -- Path setup --------------------------------------------------------------
 
 # Add the parent directory of 'edbo_data' to sys.path
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 
 # -- Project information -----------------------------------------------------
 

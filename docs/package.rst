@@ -19,3 +19,8 @@ Modules
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. automodule:: edbo_data.fetching.fetch_tibber
+    :members:
+    :undoc-members:
+    :show-inheritance:

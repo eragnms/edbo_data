@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 from datetime import datetime
 from importlib.metadata import version
 from typing import cast
@@ -9,6 +10,7 @@ from python_support.logging import MyLogger  # type: ignore
 
 from .fetching.fetch_netatmo import FetchNetatmo
 from .fetching.fetch_smhi import FetchSMHI
+from .fetching.fetch_tibber import FetchTibber
 
 LOGGER_NAME = "EDBO_DATA"
 
@@ -43,6 +45,12 @@ def main() -> None:
         "--fetch_netatmo",
         action="store_true",
         help="Fetch data from Netatmo",
+    )
+    parser.add_argument(
+        "-ft",
+        "--fetch_tibber",
+        action="store_true",
+        help="Fetch data from Tibber",
     )
     args = parser.parse_args()
 
@@ -82,6 +90,18 @@ def main() -> None:
         fetch_netatmo = FetchNetatmo()
         data = fetch_netatmo.get_data()
         log.info(f"Netatmo data: {data}")
+
+    if args.fetch_tibber:
+        tibber_token = os.environ["TIBBER_TOKEN"]
+        fetcher = FetchTibber(tibber_token)
+        data = fetcher.get_data()
+        print("Account Name:", data["account_name"])
+        print("Address:", data["address"])
+        print("Current Price Info:", data["current_price_info"])
+        print(data["price_unit"])
+        print(f"Has real time consumption data: {data['has_real_time_consumption']}")
+        consumption = fetcher.get_consumption_data()
+        print("Consumption data (last 3 entries):", consumption[-3:])
 
 
 if __name__ == "__main__":
