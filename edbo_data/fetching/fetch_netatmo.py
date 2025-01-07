@@ -53,8 +53,9 @@ class FetchNetatmo:
             dict: A dictionary of weather data.
         """
         weatherData = lnetatmo.WeatherStationData(self._authorization)
-        return {
-            "indoor": {
+        data = {}
+        if "Indoor" in weatherData.lastData():
+            data["indoor"] = {
                 "temperature": weatherData.lastData()["Indoor"]["Temperature"],
                 "co2": weatherData.lastData()["Indoor"]["CO2"],
                 "humidity": weatherData.lastData()["Indoor"]["Humidity"],
@@ -69,8 +70,11 @@ class FetchNetatmo:
                 "date_max_temp": weatherData.lastData()["Indoor"]["date_max_temp"],
                 "temp_trend": weatherData.lastData()["Indoor"]["temp_trend"],
                 "pressure_trend": weatherData.lastData()["Indoor"]["pressure_trend"],
-            },
-            "outdoor": {
+            }
+        else:
+            log.warning("No indoor data available")
+        if "Outdoor" in weatherData.lastData():
+            data["outdoor"] = {
                 "temperature": weatherData.lastData()["Outdoor"]["Temperature"],
                 "humidity": weatherData.lastData()["Outdoor"]["Humidity"],
                 "min_temp": weatherData.lastData()["Outdoor"]["min_temp"],
@@ -79,5 +83,7 @@ class FetchNetatmo:
                 "date_max_temp": weatherData.lastData()["Outdoor"]["date_max_temp"],
                 "battery_percent": weatherData.lastData()["Outdoor"]["battery_percent"],
                 "rf_status": weatherData.lastData()["Outdoor"]["rf_status"],
-            },
-        }
+            }
+        else:
+            log.warning("No outdoor data available")
+        return data
