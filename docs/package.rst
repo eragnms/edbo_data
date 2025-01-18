@@ -25,6 +25,11 @@ Modules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: edbo_data.fetching.fetch_all
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Main Script
 -----------
 

@@ -16,3 +16,4 @@ sphinx-autodoc-typehints
 lnetatmo
 requests
 pyTibber
+rich
