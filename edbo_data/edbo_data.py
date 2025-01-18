@@ -1,3 +1,10 @@
+"""
+This script serves as the entry point for the edbo_data package,
+providing a command-line interface to fetch data from various sources.
+
+For all available options, run the script with the --help flag.
+"""
+
 import argparse
 import logging
 import os
@@ -8,6 +15,7 @@ from typing import cast
 from python_support.configuration import MyConfig  # type: ignore
 from python_support.logging import MyLogger  # type: ignore
 
+from .fetching.fetch_all import FetchAll
 from .fetching.fetch_netatmo import FetchNetatmo
 from .fetching.fetch_smhi import FetchSMHI
 from .fetching.fetch_tibber import FetchTibber
@@ -18,6 +26,9 @@ log = logging.getLogger(LOGGER_NAME)
 
 
 def main() -> None:
+    """
+    Parse command-line arguments and execute the corresponding data fetching routines.
+    """
     parser = argparse.ArgumentParser(
         description="See README and project documentation for details."
     )
@@ -75,6 +86,7 @@ def main() -> None:
         forecast = fetch_smhi.get_forecast()
         for f in forecast:
             conditions = fetch_smhi.forecast_to_conditions(f)
+            print(conditions)
             valid_time = cast(datetime, conditions["valid_time"])
             date_str = valid_time.strftime("%A, %d %B")
             log.info(
@@ -86,12 +98,11 @@ def main() -> None:
                 f"{conditions['wind_direction']} wind direction, "
                 f"{conditions['symbol_string']}"
             )
-    if args.fetch_netatmo:
+    elif args.fetch_netatmo:
         fetch_netatmo = FetchNetatmo()
         data = fetch_netatmo.get_data()
         log.info(f"Netatmo data: {data}")
-
-    if args.fetch_tibber:
+    elif args.fetch_tibber:
         tibber_token = os.environ["TIBBER_TOKEN"]
         fetcher = FetchTibber(tibber_token)
         data = fetcher.get_data()
@@ -102,6 +113,15 @@ def main() -> None:
         print(f"Has real time consumption data: {data['has_real_time_consumption']}")
         consumption = fetcher.get_consumption_data()
         print("Consumption data (last 3 entries):", consumption[-3:])
+    else:
+        log.debug("Fetching data from all sources")
+        present_all_data(config)
+
+
+def present_all_data(config: MyConfig) -> None:
+    fetch_all = FetchAll(config)
+    all_data = fetch_all.get_data()
+    print(all_data)
 
 
 if __name__ == "__main__":

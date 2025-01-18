@@ -52,7 +52,7 @@ Requires the package python-pipx::
   sudo pacman -S python-pipx
 
 With access to the Git repository
-+++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++
 
 Clone the repository and do::
 

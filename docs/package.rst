@@ -24,3 +24,11 @@ Modules
     :members:
     :undoc-members:
     :show-inheritance:
+
+Main Script
+-----------
+
+.. automodule:: edbo_data.edbo_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
