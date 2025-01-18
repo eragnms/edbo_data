@@ -47,6 +47,13 @@ Then test with::
 For production
 --------------
 
+Requires the package python-pipx::
+
+  sudo pacman -S python-pipx
+
+With access to the Git repository
++++++++++++++++++++++++++++++
+
 Clone the repository and do::
 
   cd edbo_data
@@ -56,3 +63,14 @@ To upgrade to a new version::
 
   cd edbov_data
   pipx upgrade edbov_data
+
+Without the Git repository
+++++++++++++++++++++++++++
+
+Build a wheel package::
+
+  python -m build
+
+Copy the file: dist/edbov_data-<x.y.z>-py3-none-any.whl to the machine and install it with::
+
+  pipx install ./edbov_data-<x.y.z>-py3-none-any.whl --force
