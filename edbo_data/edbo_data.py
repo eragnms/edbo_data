@@ -310,6 +310,8 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
             unit_price = float(cdata.get("unitPrice", 0.0))
         except ValueError:
             continue
+        except TypeError:
+            continue
 
         if date_only not in aggregated:
             aggregated[date_only] = {
