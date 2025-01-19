@@ -6,6 +6,7 @@ For all available options, run the script with the --help flag.
 """
 
 import argparse
+import json
 import logging
 import os
 from datetime import datetime, timezone
@@ -34,7 +35,10 @@ def main() -> None:
     Parse command-line arguments and execute the corresponding data fetching routines.
     """
     parser = argparse.ArgumentParser(
-        description="See README and project documentation for details."
+        description=(
+            "With no options the script will pretty print data from all sources. "
+            "See README and project documentation for details."
+        )
     )
     parser.add_argument(
         "--loglevel",
@@ -66,6 +70,12 @@ def main() -> None:
         "--fetch_tibber",
         action="store_true",
         help="Fetch data from Tibber",
+    )
+    parser.add_argument(
+        "-fa",
+        "--fetch_all",
+        action="store_true",
+        help="Fetch data from all sources, prints to console as a JSON string",
     )
     args = parser.parse_args()
 
@@ -120,6 +130,10 @@ def main() -> None:
         print("Consumption data (last 3 entries):", consumption[-3:])
         price_info = fetcher.get_2_days_price_info()
         print("Price info:", price_info)
+    elif args.fetch_all:
+        fetch_all = FetchAll(config)
+        all_data = fetch_all.get_data()
+        print(json.dumps(all_data))
     else:
         log.debug("Fetching data from all sources")
         present_all_data(config)
