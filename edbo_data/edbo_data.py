@@ -257,6 +257,8 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
         forecast_table.add_column("Symbol", justify="center")
 
         for date_str, forecast_data in all_data["outdoor"]["forecast"].items():
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            formatted_date = date_obj.strftime("%a %d %b")
             temperature = forecast_data.get("temperature", "-")
             t_min = forecast_data.get("temperature_min", "-")
             t_max = forecast_data.get("temperature_max", "-")
@@ -268,7 +270,7 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
             symbol_str = forecast_data.get("symbol_string", "-")
 
             forecast_table.add_row(
-                date_str,
+                formatted_date,
                 str(temperature),
                 str(t_min),
                 str(t_max),
