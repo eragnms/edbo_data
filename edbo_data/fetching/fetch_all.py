@@ -31,6 +31,8 @@ class FetchAll:
         fetch_smhi = FetchSMHI(self._config.map_latitude, self._config.map_longitude)
         current_smhi_data: dict[str, Any] = fetch_smhi.get_current_conditions()
         forecast_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast()
+        forecast_h_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast_hour()
+        forecast_24h_smhi_data = forecast_h_smhi_data[1:25]
 
         # Build final data structure
         all_data: dict[str, Any] = {}
@@ -67,6 +69,29 @@ class FetchAll:
                 "precipitation_string": conditions["precipitation_string"],
             }
             all_data["outdoor"]["forecast"][date_str] = forecast
+
+        # Create the "forecast_24h" subdict
+        all_data["outdoor"]["forecast_24h"] = {}
+        for entry in forecast_24h_smhi_data:
+            conditions_24h: dict[str, Any] = fetch_smhi.forecast_to_conditions(entry)
+            valid_time = cast(datetime, conditions_24h["valid_time"])
+            date_str = valid_time.strftime("%H:%M:%S")
+
+            forecast_24h: dict[str, Any] = {
+                "temperature": conditions_24h["temperature"],
+                "temperature_min": conditions_24h["temperature_min"],
+                "temperature_max": conditions_24h["temperature_max"],
+                "precipitation": conditions_24h["precipitation"],
+                "wind_speed": conditions_24h["wind_speed"],
+                "wind_direction": conditions_24h["wind_direction"],
+                "wind_gust": conditions_24h["wind_gust"],
+                "symbol": conditions_24h["symbol"],
+                "symbol_string": conditions_24h["symbol_string"],
+                "humidity": conditions_24h["humidity"],
+                "pressure": conditions_24h["pressure"],
+                "precipitation_string": conditions_24h["precipitation_string"],
+            }
+            all_data["outdoor"]["forecast_24h"][date_str] = forecast_24h
 
         # --- Energy data ---
         all_data["energy"] = {}

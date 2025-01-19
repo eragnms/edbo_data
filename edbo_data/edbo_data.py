@@ -166,13 +166,62 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
 
         console.print(out_current_table)
 
-    # -----------------------------
-    # 3) Outdoor Data - Forecast
-    # -----------------------------
+    # -----------------------------------
+    # 3) Outdoor Data - Forecast 24 hours
+    # -----------------------------------
+    if "outdoor" in all_data and "forecast_24h" in all_data["outdoor"]:
+        # Build a table for daily forecast. We'll assume each day is a row.
+        forecast_table = Table(
+            title="Outdoor - Forecast 24 hours",
+            box=box.SIMPLE_HEAVY,
+            show_lines=False,
+            title_style="bold magenta",
+        )
+        # Let’s define columns we’d like to show. Adjust as needed.
+        forecast_table.add_column("Date", style="bold green")
+        forecast_table.add_column("Temp", justify="right")
+        forecast_table.add_column("Min", justify="right")
+        forecast_table.add_column("Max", justify="right")
+        forecast_table.add_column("Prec", justify="right")
+        forecast_table.add_column("Wind Spd", justify="right")
+        forecast_table.add_column("Wind Dir", justify="right")
+        forecast_table.add_column("Humidity", justify="right")
+        forecast_table.add_column("Pressure", justify="right")
+        forecast_table.add_column("Symbol", justify="center")
+
+        for date_str, forecast_data in all_data["outdoor"]["forecast_24h"].items():
+            temperature = forecast_data.get("temperature", "-")
+            t_min = forecast_data.get("temperature_min", "-")
+            t_max = forecast_data.get("temperature_max", "-")
+            precipitation = forecast_data.get("precipitation", "-")
+            wind_speed = forecast_data.get("wind_speed", "-")
+            wind_dir = forecast_data.get("wind_direction", "-")
+            humidity = forecast_data.get("humidity", "-")
+            pressure = forecast_data.get("pressure", "-")
+            symbol_str = forecast_data.get("symbol_string", "-")
+
+            forecast_table.add_row(
+                date_str,
+                str(temperature),
+                str(t_min),
+                str(t_max),
+                str(precipitation),
+                str(wind_speed),
+                str(wind_dir),
+                str(humidity),
+                str(pressure),
+                symbol_str,
+            )
+
+        console.print(forecast_table)
+
+    # ----------------------------------
+    # 3) Outdoor Data - Forecast 10 days
+    # ----------------------------------
     if "outdoor" in all_data and "forecast" in all_data["outdoor"]:
         # Build a table for daily forecast. We'll assume each day is a row.
         forecast_table = Table(
-            title="Outdoor - Forecast",
+            title="Outdoor - Forecast 10 days",
             box=box.SIMPLE_HEAVY,
             show_lines=False,
             title_style="bold magenta",
