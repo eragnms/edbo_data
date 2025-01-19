@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="edbo_data"
-version="1.2.3"
+version="1.2.5"
 authors = [
   { name="Mats Gustafsson", email="matsgus71@gmail.com" },
 ]
@@ -22,7 +22,8 @@ dependencies = [
     "aiohttp",
     "rich",
     "lnetatmo",
-    "pyTibber"
+    "pyTibber",
+    "python-dateutil",
 ]
 [project.scripts]
 edbo-data = "edbo_data.edbo_data:main"
