@@ -304,9 +304,12 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
     for dt_str, cdata in all_data["energy"]["consumption"].items():
         # dt_str looks like "2025-01-17 21:00:00"
         date_only = dt_str[:10]  # "2025-01-17"
-        consumption = float(cdata.get("consumption", 0.0))
-        cost = float(cdata.get("cost", 0.0))
-        unit_price = float(cdata.get("unitPrice", 0.0))
+        try:
+            consumption = float(cdata.get("consumption", 0.0))
+            cost = float(cdata.get("cost", 0.0))
+            unit_price = float(cdata.get("unitPrice", 0.0))
+        except ValueError:
+            continue
 
         if date_only not in aggregated:
             aggregated[date_only] = {
