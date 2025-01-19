@@ -70,7 +70,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.version:
-        package_version = version("asset_predictor")
+        package_version = version("edbo_data")
         print(f"Installed version of asset predictor: {package_version}")
         exit(0)
 
