@@ -287,37 +287,69 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
 
         console.print(energy_price_table)
 
-    # -----------------------------
-    # 5) Energy Data - Consumption
-    # -----------------------------
-    if "energy" in all_data and "consumption" in all_data["energy"]:
-        consumption_table = Table(
-            title="Energy - Consumption",
-            box=box.SIMPLE_HEAVY,
-            show_lines=False,
-            title_style="bold magenta",
+    # Check if we have energy consumption data
+    if "energy" not in all_data or "consumption" not in all_data["energy"]:
+        return
+
+    # 1) Aggregate the hourly data by date
+    #    We'll do a "consumption-weighted" average of unitPrice.
+    aggregated: dict[str, dict[str, float]] = {}
+    # Structure of aggregated[date_str] = {
+    #    "consumption": float,
+    #    "cost": float,
+    #    "price_times_consumption": float  # for computing weighted average
+    # }
+
+    for dt_str, cdata in all_data["energy"]["consumption"].items():
+        # dt_str looks like "2025-01-17 21:00:00"
+        date_only = dt_str[:10]  # "2025-01-17"
+        consumption = float(cdata.get("consumption", 0.0))
+        cost = float(cdata.get("cost", 0.0))
+        unit_price = float(cdata.get("unitPrice", 0.0))
+
+        if date_only not in aggregated:
+            aggregated[date_only] = {
+                "consumption": 0.0,
+                "cost": 0.0,
+                "price_times_consumption": 0.0,
+            }
+
+        aggregated[date_only]["consumption"] += consumption
+        aggregated[date_only]["cost"] += cost
+        aggregated[date_only]["price_times_consumption"] += unit_price * consumption
+
+    # 2) Create a Rich table
+    consumption_table = Table(
+        title="Energy - Daily Aggregated Consumption",
+        box=box.SIMPLE_HEAVY,
+        show_lines=False,
+        title_style="bold magenta",
+    )
+    consumption_table.add_column("Date", style="bold green", no_wrap=True)
+    consumption_table.add_column("Consumption", justify="right")
+    consumption_table.add_column("Unit Price", justify="right")
+    consumption_table.add_column("Cost", justify="right")
+
+    # 3) Populate table rows (sorted by date)
+    for date_str in sorted(aggregated.keys()):
+        total_cons = aggregated[date_str]["consumption"]
+        price_times_cons = aggregated[date_str]["price_times_consumption"]
+        total_cost = aggregated[date_str]["cost"]
+
+        # Compute consumption-weighted average price
+        if total_cons > 0:
+            avg_price = price_times_cons / total_cons
+        else:
+            avg_price = 0.0
+
+        consumption_table.add_row(
+            date_str,
+            f"{total_cons:.2f}",
+            f"{avg_price:.2f}",
+            f"{total_cost:.2f}",
         )
-        consumption_table.add_column("Date/Time", style="bold green", no_wrap=True)
-        consumption_table.add_column("Consumption", justify="right")
-        consumption_table.add_column("Cost", justify="right")
-        consumption_table.add_column("Unit Price", justify="right")
-        consumption_table.add_column("Total Cost", justify="right")
 
-        for dt_str, cdata in all_data["energy"]["consumption"].items():
-            unit_price = cdata.get("unitPrice", "-")
-            cost = cdata.get("cost", "-")
-            consumption = cdata.get("consumption", "-")
-            total_cost = cdata.get("totalCost", "-")
-
-            consumption_table.add_row(
-                dt_str,
-                str(consumption),
-                str(cost),
-                str(unit_price),
-                str(total_cost),
-            )
-
-        console.print(consumption_table)
+    console.print(consumption_table)
 
 
 if __name__ == "__main__":
