@@ -24,8 +24,7 @@ class FetchAll:
         fetch_tibber = FetchTibber(tibber_token)
         tibber_data: dict[str, Any] = fetch_tibber.get_data()
         energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()
-        # Keep the last 24 hours
-        energy_data = energy_data[-25:-1]
+        price_data: dict[str, Any] = fetch_tibber.get_2_days_price_info()
 
         # Fetch SMHI data
         fetch_smhi = FetchSMHI(self._config.map_latitude, self._config.map_longitude)
@@ -102,5 +101,7 @@ class FetchAll:
             date_str = entry["from"][0:10] + " " + entry["from"][11:19]
             del entry["from"]
             all_data["energy"]["consumption"][date_str] = entry
+
+        all_data["energy"]["price"] = price_data
 
         return all_data

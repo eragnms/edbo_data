@@ -30,10 +30,22 @@ class FetchTibber:
     def get_data(self) -> dict[str, Any]:
         """Synchronous-looking method that wraps the actual async Tibber calls.
 
+        Fetch current price and current energy consumption.
+
         Returns:
             dict[str, Any]: Dictionary containing various data fetched from Tibber.
         """
         return asyncio.run(self._get_data())
+
+    def get_2_days_price_info(self) -> dict[str, Any]:
+        """Synchronous-looking method that wraps the actual async Tibber calls.
+
+        Fetch current price and coming prices.
+
+        Returns:
+            dict[str, Any]: Dictionary containing various data fetched from Tibber.
+        """
+        return asyncio.run(self._get_data_2_days())
 
     def get_consumption_data(self) -> list[dict[Any, Any]]:
         """Public synchronous method to fetch consumption data.
@@ -120,4 +132,41 @@ class FetchTibber:
             "current_price_info": current_price_info,
             "price_unit": home.price_unit,
             "has_real_time_consumption": home.has_real_time_consumption,
+        }
+
+    async def _get_data_2_days(self) -> dict[str, Any]:
+        """Internal async method that interacts with the Tibber library to fetch data.
+
+        Steps:
+            1. Create Tibber connection.
+            2. Update account and home info.
+            3. Fetch consumption and price data.
+            4. Close the connection.
+            5. Return collected data.
+
+        Returns:
+            dict[str, Any]: Dictionary containing price info for the current day
+                            and the next day.
+        """
+        # Create Tibber connection
+        tibber_connection = tibber.Tibber(self.token, user_agent=self.user_agent)
+
+        # Update account info and store the account name
+        await tibber_connection.update_info()
+
+        # Retrieve the first home from the account
+        home = tibber_connection.get_homes()[0]
+
+        # Fetch consumption data
+        await home.fetch_consumption_data()
+
+        # Update and retrieve price info
+        await home.update_price_info()
+        price_info: dict[str, Any] = home.price_total
+
+        # Close the Tibber connection
+        await tibber_connection.close_connection()
+
+        return {
+            "price_info": price_info,
         }

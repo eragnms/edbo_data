@@ -114,8 +114,11 @@ def main() -> None:
         print("Current Price Info:", data["current_price_info"])
         print(data["price_unit"])
         print(f"Has real time consumption data: {data['has_real_time_consumption']}")
+        print(data)
         consumption = fetcher.get_consumption_data()
         print("Consumption data (last 3 entries):", consumption[-3:])
+        price_info = fetcher.get_2_days_price_info()
+        print("Price info:", price_info)
     else:
         log.debug("Fetching data from all sources")
         present_all_data(config)
