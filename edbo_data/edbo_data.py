@@ -8,10 +8,11 @@ For all available options, run the script with the --help flag.
 import argparse
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from importlib.metadata import version
 from typing import Any, cast
 
+from dateutil.parser import parse as parse_datetime  # type: ignore
 from python_support.configuration import MyConfig  # type: ignore
 from python_support.logging import MyLogger  # type: ignore
 from rich import box  # type: ignore
@@ -181,7 +182,7 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
             title_style="bold magenta",
         )
         # Let’s define columns we’d like to show. Adjust as needed.
-        forecast_table.add_column("Date", style="bold green")
+        forecast_table.add_column("Time", style="bold green")
         forecast_table.add_column("Temp", justify="right")
         forecast_table.add_column("Min", justify="right")
         forecast_table.add_column("Max", justify="right")
@@ -350,6 +351,50 @@ def pretty_print_data(all_data: dict[str, Any]) -> None:
         )
 
     console.print(consumption_table)
+
+    # ------------------------------
+    # 4) Energy Data - Future Price
+    # ------------------------------
+    # Collect all entries that are strictly in the future.
+    # We'll parse the datetime string, convert to UTC, then compare with "now" in UTC.
+    now_utc = datetime.now(timezone.utc)
+    future_entries = []
+
+    for dt_str, price_value in all_data["energy"]["prices"].items():
+        dt_parsed = parse_datetime(dt_str)  # dt will have a tz from the string
+        dt_utc = dt_parsed.astimezone(timezone.utc)
+        if dt_utc > now_utc:
+            future_entries.append((dt_utc, price_value))
+
+    # If no future prices exist, optionally show a message or exit.
+    if not future_entries:
+        console.print("[bold red]No future prices available.[/bold red]")
+        return
+
+    # Sort the entries chronologically
+    future_entries.sort(key=lambda x: x[0])
+
+    # Build the Rich table
+    price_table = Table(
+        title="Energy - Future Price Info",
+        title_style="bold magenta",
+        box=box.SIMPLE_HEAVY,
+        show_lines=False,
+    )
+    price_table.add_column("Time (Local)", style="bold green", no_wrap=True)
+    price_table.add_column("Price [SEK/kWh]", justify="right")
+
+    for dt_utc, price_value in future_entries:
+        # Convert UTC time to local time (omit `.astimezone()` if
+        # you want to stay in UTC)
+        dt_local = dt_utc.astimezone()
+        # Format just hours, minutes, seconds (24-hour format)
+        time_str = dt_local.strftime("%H:%M:%S")
+        # Price with two decimal digits
+        price_str = f"{price_value:.2f}"
+        price_table.add_row(time_str, price_str)
+
+    console.print(price_table)
 
 
 if __name__ == "__main__":

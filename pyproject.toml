@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="edbo_data"
-version="1.1.0"
+version="1.2.0"
 authors = [
   { name="Mats Gustafsson", email="matsgus71@gmail.com" },
 ]

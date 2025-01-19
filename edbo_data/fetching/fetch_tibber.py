@@ -167,6 +167,4 @@ class FetchTibber:
         # Close the Tibber connection
         await tibber_connection.close_connection()
 
-        return {
-            "price_info": price_info,
-        }
+        return price_info

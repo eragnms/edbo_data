@@ -102,6 +102,6 @@ class FetchAll:
             del entry["from"]
             all_data["energy"]["consumption"][date_str] = entry
 
-        all_data["energy"]["price"] = price_data
+        all_data["energy"]["prices"] = price_data
 
         return all_data
