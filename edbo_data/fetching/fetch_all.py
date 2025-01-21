@@ -21,6 +21,8 @@ class FetchAll:
 
         # Fetch Tibber data
         tibber_token = os.environ["TIBBER_TOKEN"]
+        if not tibber_token:
+            raise ValueError("TIBBER_TOKEN environment variable must be set")
         fetch_tibber = FetchTibber(tibber_token)
         tibber_data: dict[str, Any] = fetch_tibber.get_data()
         energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()

@@ -9,6 +9,7 @@ import argparse
 import json
 import logging
 import os
+import sys
 from datetime import datetime, timezone
 from importlib.metadata import version
 from typing import Any, cast
@@ -91,7 +92,14 @@ def main() -> None:
         level = numeric_level
     MyLogger().setup_logger(level, LOGGER_NAME)
 
-    config = MyConfig("ED_CONFIG")
+    try:
+        config = MyConfig("ED_CONFIG")
+    except FileNotFoundError as e:
+        log.error(f"{e}")
+        sys.exit(1)
+    except ValueError as e:
+        log.error(f"{e}")
+        sys.exit(1)
 
     if args.fetch_smhi:
         fetch_smhi = FetchSMHI(config.map_latitude, config.map_longitude)
@@ -131,8 +139,12 @@ def main() -> None:
         price_info = fetcher.get_2_days_price_info()
         print("Price info:", price_info)
     elif args.fetch_all:
-        fetch_all = FetchAll(config)
-        all_data = fetch_all.get_data()
+        try:
+            fetch_all = FetchAll(config)
+            all_data = fetch_all.get_data()
+        except Exception as e:
+            log.error(f"Error fetching data: {e}")
+            sys.exit(1)
         print(json.dumps(all_data))
     else:
         log.debug("Fetching data from all sources")
