@@ -1,6 +1,5 @@
 """Fetch data from all sources."""
 
-import os
 from datetime import datetime
 from typing import Any, cast
 
@@ -20,9 +19,9 @@ class FetchAll:
         netatmo_data: dict[str, Any] = FetchNetatmo().get_data()
 
         # Fetch Tibber data
-        tibber_token = os.environ["TIBBER_TOKEN"]
+        tibber_token = self._config.tibber_token
         if not tibber_token:
-            raise ValueError("TIBBER_TOKEN environment variable must be set")
+            raise ValueError("TIBBER_TOKEN must be set")
         fetch_tibber = FetchTibber(tibber_token)
         tibber_data: dict[str, Any] = fetch_tibber.get_data()
         energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()

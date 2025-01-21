@@ -6,7 +6,17 @@ Setup
 
 Add an environmental variable::
 
-  ED_CONFIG: pointing to a configuration file
+  ED_CONFIG: <path_toconfiguration_file>
+
+In the configuration file add::
+
+  [MAP]
+  # Your position
+  latitude = 59.2246338
+  longitude = 18.1528859
+
+  [TIBBER]
+  token = <tibber_token>
 
 Setup authentication for Netatmo. Create an app by logging in at
 `Netatmo <https://dev.netatmo.com/apidocumentation>`_. When
@@ -25,10 +35,6 @@ app::
 Then set the permissions on the file::
 
   chmod u=rw,g=r,o=r .netatmo.credentials
-
-Add the token for Tibber in an environment variable::
-
-  TIBBER_TOKEN: <token>
 
 For development
 ---------------
