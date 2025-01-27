@@ -1,5 +1,6 @@
 """Fetch data from all sources."""
 
+import logging
 from datetime import datetime
 from typing import Any, cast
 
@@ -9,6 +10,8 @@ from .fetch_netatmo import FetchNetatmo
 from .fetch_smhi import FetchSMHI
 from .fetch_tibber import FetchTibber
 
+log = logging.getLogger("EDBO_DATA")
+
 
 class FetchAll:
     def __init__(self, config: MyConfig) -> None:
@@ -16,19 +19,33 @@ class FetchAll:
 
     def get_data(self) -> dict[str, Any]:
         # Fetch Netatmo data
-        netatmo_data: dict[str, Any] = FetchNetatmo().get_data()
+        try:
+            netatmo_data: dict[str, Any] = FetchNetatmo().get_data()
+        except Exception as e:
+            log.error(f"Failed to fetch Netatmo data: {e}")
+            raise e
 
         # Fetch Tibber data
         tibber_token = self._config.tibber_token
         if not tibber_token:
             raise ValueError("TIBBER_TOKEN must be set")
-        fetch_tibber = FetchTibber(tibber_token)
+        try:
+            fetch_tibber = FetchTibber(tibber_token)
+        except Exception as e:
+            log.error(f"Failed to fetch Tibber data: {e}")
+            raise e
         tibber_data: dict[str, Any] = fetch_tibber.get_data()
         energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()
         price_data: dict[str, Any] = fetch_tibber.get_2_days_price_info()
 
         # Fetch SMHI data
-        fetch_smhi = FetchSMHI(self._config.map_latitude, self._config.map_longitude)
+        try:
+            fetch_smhi = FetchSMHI(
+                self._config.map_latitude, self._config.map_longitude
+            )
+        except Exception as e:
+            log.error(f"Failed to fetch SMHI data: {e}")
+            raise e
         current_smhi_data: dict[str, Any] = fetch_smhi.get_current_conditions()
         forecast_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast()
         forecast_h_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast_hour()
