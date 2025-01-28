@@ -8,7 +8,6 @@ For all available options, run the script with the --help flag.
 import argparse
 import json
 import logging
-import os
 import sys
 from datetime import datetime, timezone
 from importlib.metadata import version
@@ -124,8 +123,7 @@ def main() -> None:
         data = fetch_netatmo.get_data()
         log.info(f"Netatmo data: {data}")
     elif args.fetch_tibber:
-        tibber_token = os.environ["TIBBER_TOKEN"]
-        fetcher = FetchTibber(tibber_token)
+        fetcher = FetchTibber(config.tibber_token)
         data = fetcher.get_data()
         print("Account Name:", data["account_name"])
         print("Address:", data["address"])
