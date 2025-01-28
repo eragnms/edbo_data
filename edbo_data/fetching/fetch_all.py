@@ -29,14 +29,22 @@ class FetchAll:
         tibber_token = self._config.tibber_token
         if not tibber_token:
             raise ValueError("TIBBER_TOKEN must be set")
+        fetch_tibber = FetchTibber(tibber_token)
         try:
-            fetch_tibber = FetchTibber(tibber_token)
+            tibber_data: dict[str, Any] = fetch_tibber.get_data()
         except Exception as e:
             log.error(f"Failed to fetch Tibber data: {e}")
             raise e
-        tibber_data: dict[str, Any] = fetch_tibber.get_data()
-        energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()
-        price_data: dict[str, Any] = fetch_tibber.get_2_days_price_info()
+        try:
+            energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()
+        except Exception as e:
+            log.error(f"Failed to fetch Tibber consumption data: {e}")
+            raise e
+        try:
+            price_data: dict[str, Any] = fetch_tibber.get_2_days_price_info()
+        except Exception as e:
+            log.error(f"Failed to fetch Tibber price data: {e}")
+            raise e
 
         # Fetch SMHI data
         try:
