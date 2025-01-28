@@ -90,16 +90,15 @@ def main() -> None:
         if not isinstance(numeric_level, int):
             raise ValueError("Invalid log level: %s" % args.loglevel)
         level = numeric_level
-    MyLogger().setup_logger(level, LOGGER_NAME)
 
-    try:
-        config = MyConfig("ED_CONFIG")
-    except FileNotFoundError as e:
-        log.error(f"{e}")
-        sys.exit(1)
-    except ValueError as e:
-        log.error(f"{e}")
-        sys.exit(1)
+    config = MyConfig("ED_CONFIG")
+    if config.general_log_with_timestamp == "true":
+        add_timestamp = True
+    else:
+        add_timestamp = False
+    MyLogger(add_timestamp=add_timestamp).setup_logger(
+        level, LOGGER_NAME, config.general_log_file
+    )
 
     if args.fetch_smhi:
         fetch_smhi = FetchSMHI(config.map_latitude, config.map_longitude)

@@ -10,6 +10,10 @@ Add an environmental variable::
 
 In the configuration file add::
 
+  [GENERAL]
+  log_file =
+  log_with_timestamp = false
+
   [MAP]
   # Your position
   latitude = 59.2246338
