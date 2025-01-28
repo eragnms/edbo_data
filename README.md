@@ -1,8 +1,7 @@
 # Edbov Data
 
-A project that gathers information about from different sources and stores it in
-a SQLite database. The sources currently implemented are Netatmo, Tibber and
-SMHI.
+A project that gathers information about from different sources.
+The sources currently implemented are Netatmo, Tibber and SMHI.
 
 For information on how to run and use the project see the project documentation.
 
