@@ -139,7 +139,7 @@ def main() -> None:
         print("Price info:", price_info)
     elif args.fetch_all:
         try:
-            fetch_all = FetchAll(config)
+            fetch_all = FetchAll(config, log)
             all_data = fetch_all.get_data()
         except Exception as e:
             log.error(f"Error fetching data: {e}")

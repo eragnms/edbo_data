@@ -1,6 +1,7 @@
 """Fetch data from Tibber API"""
 
 import asyncio
+import logging
 from typing import Any
 
 import tibber  # type: ignore
@@ -14,7 +15,10 @@ class FetchTibber:
     """
 
     def __init__(
-        self, token: str = tibber.const.DEMO_TOKEN, user_agent: str = "change_this"
+        self,
+        token: str = tibber.const.DEMO_TOKEN,
+        user_agent: str = "change_this",
+        logger: logging.Logger | None = None,
     ) -> None:
         """Initialize the FetchTibber class.
 
@@ -26,6 +30,7 @@ class FetchTibber:
         """
         self.token = token
         self.user_agent = user_agent
+        self._log = logger if logger is not None else logging.getLogger(__name__)
 
     def get_data(self) -> dict[str, Any]:
         """Synchronous-looking method that wraps the actual async Tibber calls.

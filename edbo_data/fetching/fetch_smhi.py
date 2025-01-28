@@ -6,6 +6,7 @@ Uses the SMHI API to fetch weather data for a specific location see:
 - https://github.com/joysoftware/pypi_smhi?tab=readme-ov-file
 """
 
+import logging
 from datetime import datetime
 
 from smhi.smhi_lib import Smhi, SmhiForecast  # type: ignore
@@ -17,7 +18,9 @@ class FetchSMHI:
     It also fetches current conditions from the SMHI API.
     """
 
-    def __init__(self, latitude: str, longitude: str) -> None:
+    def __init__(
+        self, latitude: str, longitude: str, logger: logging.Logger | None = None
+    ) -> None:
         """Initialize FetchSMHI with geographic coordinates.
 
         Args:
@@ -26,6 +29,7 @@ class FetchSMHI:
         """
         self._latitude = latitude
         self._longitude = longitude
+        self._log = logger if logger is not None else logging.getLogger(__name__)
 
     def get_forecast(self) -> list[SmhiForecast]:
         """Retrieve the weather forecast for the initialized location.

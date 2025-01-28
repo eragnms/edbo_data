@@ -10,49 +10,48 @@ from .fetch_netatmo import FetchNetatmo
 from .fetch_smhi import FetchSMHI
 from .fetch_tibber import FetchTibber
 
-log = logging.getLogger("EDBO_DATA")
-
 
 class FetchAll:
-    def __init__(self, config: MyConfig) -> None:
+    def __init__(self, config: MyConfig, logger: logging.Logger | None = None) -> None:
         self._config = config
+        self._log = logger if logger is not None else logging.getLogger(__name__)
 
     def get_data(self) -> dict[str, Any]:
         # Fetch Netatmo data
         try:
-            netatmo_data: dict[str, Any] = FetchNetatmo().get_data()
+            netatmo_data: dict[str, Any] = FetchNetatmo(self._log).get_data()
         except Exception as e:
-            log.error(f"Failed to fetch Netatmo data: {e}")
+            self._log.error(f"Failed to fetch Netatmo data: {e}")
             raise e
 
         # Fetch Tibber data
         tibber_token = self._config.tibber_token
         if not tibber_token:
             raise ValueError("TIBBER_TOKEN must be set")
-        fetch_tibber = FetchTibber(tibber_token)
+        fetch_tibber = FetchTibber(token=tibber_token, logger=self._log)
         try:
             tibber_data: dict[str, Any] = fetch_tibber.get_data()
         except Exception as e:
-            log.error(f"Failed to fetch Tibber data: {e}")
+            self._log.error(f"Failed to fetch Tibber data: {e}")
             raise e
         try:
             energy_data: list[dict[str, Any]] = fetch_tibber.get_consumption_data()
         except Exception as e:
-            log.error(f"Failed to fetch Tibber consumption data: {e}")
+            self._log.error(f"Failed to fetch Tibber consumption data: {e}")
             raise e
         try:
             price_data: dict[str, Any] = fetch_tibber.get_2_days_price_info()
         except Exception as e:
-            log.error(f"Failed to fetch Tibber price data: {e}")
+            self._log.error(f"Failed to fetch Tibber price data: {e}")
             raise e
 
         # Fetch SMHI data
         try:
             fetch_smhi = FetchSMHI(
-                self._config.map_latitude, self._config.map_longitude
+                self._config.map_latitude, self._config.map_longitude, self._log
             )
         except Exception as e:
-            log.error(f"Failed to fetch SMHI data: {e}")
+            self._log.error(f"Failed to fetch SMHI data: {e}")
             raise e
         current_smhi_data: dict[str, Any] = fetch_smhi.get_current_conditions()
         forecast_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast()

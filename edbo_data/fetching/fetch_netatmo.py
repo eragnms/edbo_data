@@ -10,8 +10,6 @@ import logging
 
 import lnetatmo  # type: ignore
 
-log = logging.getLogger("EDBO_DATA")
-
 
 class FetchNetatmo:
     """FetchNetatmo is responsible for fetching weather data from a Netatmo
@@ -20,8 +18,9 @@ class FetchNetatmo:
     It fetches data from the Netatmo API.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, logger: logging.Logger | None = None) -> None:
         """Initialize FetchNetatmo."""
+        self._log = logger if logger is not None else logging.getLogger(__name__)
         self._authorization = lnetatmo.ClientAuth()
 
     def get_data(self) -> dict[str, dict[str, int | str | float]]:
@@ -50,7 +49,7 @@ class FetchNetatmo:
                 "pressure_trend": weatherData.lastData()["Indoor"]["pressure_trend"],
             }
         else:
-            log.warning("No indoor data available")
+            self._log.warning("No indoor data available")
         if "Outdoor" in weatherData.lastData():
             data["outdoor"] = {
                 "temperature": weatherData.lastData()["Outdoor"]["Temperature"],
@@ -63,5 +62,5 @@ class FetchNetatmo:
                 "rf_status": weatherData.lastData()["Outdoor"]["rf_status"],
             }
         else:
-            log.warning("No outdoor data available")
+            self._log.warning("No outdoor data available")
         return data
