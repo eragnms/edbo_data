@@ -70,6 +70,25 @@ class FetchAll:
         # We'll remove the valid_time from the 'current' block
         del current["valid_time"]
         all_data["outdoor"]["current"] = current
+        # Check if the Netatmo outdoor data is available and if so, use it
+        if "outdoor" in netatmo_data:
+            if netatmo_data["outdoor"]["temperature"] > -999:
+                self._log.info("Netatmo outdoor data is available, using it")
+                all_data["outdoor"]["current"]["temperature"] = netatmo_data["outdoor"][
+                    "temperature"
+                ]
+            if netatmo_data["outdoor"]["min_temp"] > -999:
+                all_data["outdoor"]["current"]["temperature_min"] = netatmo_data[
+                    "outdoor"
+                ]["min_temp"]
+            if netatmo_data["outdoor"]["max_temp"] > -999:
+                all_data["outdoor"]["current"]["temperature_max"] = netatmo_data[
+                    "outdoor"
+                ]["max_temp"]
+            if netatmo_data["outdoor"]["humidity"] > -999:
+                all_data["outdoor"]["current"]["humidity"] = netatmo_data["outdoor"][
+                    "humidity"
+                ]
 
         # Create the "forecast" subdict
         all_data["outdoor"]["forecast"] = {}
