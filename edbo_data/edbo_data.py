@@ -119,7 +119,7 @@ def main() -> None:
                 f"{conditions['symbol_string']}"
             )
     elif args.fetch_netatmo:
-        fetch_netatmo = FetchNetatmo()
+        fetch_netatmo = FetchNetatmo(log)
         data = fetch_netatmo.get_data()
         log.info(f"Netatmo data: {data}")
     elif args.fetch_tibber:

@@ -24,6 +24,7 @@ class FetchNetatmo:
         self._log = logger if logger is not None else logging.getLogger(__name__)
         try:
             self._authorization = lnetatmo.ClientAuth()
+            self._log.debug("Authenticated")
         except Exception as e:
             self._log.error(f"Failed to authenticate with Netatmo API: {e}")
             raise
