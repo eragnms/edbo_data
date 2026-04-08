@@ -7,8 +7,8 @@ from typing import Any, cast
 from python_support.configuration import MyConfig  # type: ignore
 
 from .fetch_netatmo import FetchNetatmo
-from .fetch_smhi import FetchSMHI
 from .fetch_tibber import FetchTibber
+from .weather_provider import create_weather_provider
 
 
 class FetchAll:
@@ -45,17 +45,16 @@ class FetchAll:
             self._log.error(f"Failed to fetch Tibber price data: {e}")
             raise e
 
-        # Fetch SMHI data
+        # Fetch weather data (primary provider + optional automatic fallback,
+        # selected via the [WEATHER] section of the config file).
         try:
-            fetch_smhi = FetchSMHI(
-                self._config.map_latitude, self._config.map_longitude, self._log
-            )
+            fetch_weather = create_weather_provider(self._config, self._log)
         except Exception as e:
-            self._log.error(f"Failed to fetch SMHI data: {e}")
+            self._log.error(f"Failed to initialize weather provider: {e}")
             raise e
-        current_smhi_data: dict[str, Any] = fetch_smhi.get_current_conditions()
-        forecast_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast()
-        forecast_h_smhi_data: list[dict[str, Any]] = fetch_smhi.get_forecast_hour()
+        current_smhi_data: dict[str, Any] = fetch_weather.get_current_conditions()
+        forecast_smhi_data: list[dict[str, Any]] = fetch_weather.get_forecast()
+        forecast_h_smhi_data: list[dict[str, Any]] = fetch_weather.get_forecast_hour()
         forecast_24h_smhi_data = forecast_h_smhi_data[1:25]
 
         # Build final data structure
@@ -66,7 +65,9 @@ class FetchAll:
 
         # --- Outdoor data ---
         all_data["outdoor"] = {}
-        current: dict[str, Any] = fetch_smhi.forecast_to_conditions(current_smhi_data)
+        current: dict[str, Any] = fetch_weather.forecast_to_conditions(
+            current_smhi_data
+        )
         # We'll remove the valid_time from the 'current' block
         del current["valid_time"]
         all_data["outdoor"]["current"] = current
@@ -93,7 +94,7 @@ class FetchAll:
         # Create the "forecast" subdict
         all_data["outdoor"]["forecast"] = {}
         for entry in forecast_smhi_data:
-            conditions: dict[str, Any] = fetch_smhi.forecast_to_conditions(entry)
+            conditions: dict[str, Any] = fetch_weather.forecast_to_conditions(entry)
             valid_time = cast(datetime, conditions["valid_time"])
             date_str = valid_time.strftime("%Y-%m-%d")
 
@@ -116,7 +117,7 @@ class FetchAll:
         # Create the "forecast_24h" subdict
         all_data["outdoor"]["forecast_24h"] = {}
         for entry in forecast_24h_smhi_data:
-            conditions_24h: dict[str, Any] = fetch_smhi.forecast_to_conditions(entry)
+            conditions_24h: dict[str, Any] = fetch_weather.forecast_to_conditions(entry)
             valid_time = cast(datetime, conditions_24h["valid_time"])
             date_str = valid_time.strftime("%H:%M:%S")
 

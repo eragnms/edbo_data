@@ -13,6 +13,7 @@ repos:
     -   id: mypy
         additional_dependencies: [types-requests, types-setuptools]
         args: [--config-file=mypy.ini]
+        exclude: ^tests/
 -   repo: https://github.com/timothycrosley/isort
     rev: 5.13.2
     hooks:
