@@ -72,10 +72,24 @@ class WeatherProviderWithFallback(BaseForecastProvider):
         super().__init__(first._latitude, first._longitude, logger)
         self._providers = providers
         self._active_index = 0
+        # Remember the originally-configured primary so callers can detect
+        # whether a fallback was used during this wrapper's lifetime.
+        self._primary_name = providers[0].name
+        self._used_fallback = False
 
     @property
     def active_provider(self) -> BaseForecastProvider:
         return self._providers[self._active_index]
+
+    @property
+    def primary_name(self) -> str:
+        """Name of the originally-configured primary provider."""
+        return self._primary_name
+
+    @property
+    def used_fallback(self) -> bool:
+        """True if any call has fallen back from the primary provider."""
+        return self._used_fallback
 
     def _try_each(
         self, method_name: str, call: Callable[[BaseForecastProvider], Any]
@@ -92,6 +106,11 @@ class WeatherProviderWithFallback(BaseForecastProvider):
                         method_name,
                     )
                     self._active_index = idx
+                # Any call that ends on a non-primary provider counts as
+                # having used the fallback, even if subsequent calls succeed
+                # on the primary again.
+                if idx != 0:
+                    self._used_fallback = True
                 return result
             except Exception as exc:  # noqa: BLE001 - we want to try next provider
                 self._log.warning(

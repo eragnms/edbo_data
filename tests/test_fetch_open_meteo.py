@@ -284,3 +284,27 @@ def test_fallback_wrapper_raises_when_all_providers_fail() -> None:
     wrapper = WeatherProviderWithFallback([primary, fallback])
     with pytest.raises(RuntimeError, match="primary down"):
         wrapper.get_current_conditions()
+
+
+def test_fallback_wrapper_tracks_primary_and_used_fallback_flag() -> None:
+    primary = _BrokenProvider("59.22", "18.15")
+    fallback = _StubProvider(_fake_open_meteo_payload())
+
+    wrapper = WeatherProviderWithFallback([primary, fallback])
+    assert wrapper.primary_name == "broken"
+    assert wrapper.used_fallback is False
+
+    wrapper.get_current_conditions()
+    assert wrapper.used_fallback is True
+    # primary_name should still point at the original primary, not the
+    # currently-active provider.
+    assert wrapper.primary_name == "broken"
+
+
+def test_fallback_wrapper_used_fallback_stays_false_on_primary_success() -> None:
+    primary = _StubProvider(_fake_open_meteo_payload())
+    fallback = _BrokenProvider("59.22", "18.15")
+
+    wrapper = WeatherProviderWithFallback([primary, fallback])
+    wrapper.get_current_conditions()
+    assert wrapper.used_fallback is False
