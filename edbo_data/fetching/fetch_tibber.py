@@ -120,12 +120,10 @@ class FetchTibber:
         # Fetch consumption data
         await home.fetch_consumption_data()
 
-        # Update home info (address, etc.)
-        await home.update_info()
+        # Update home info and current price info in a single call
+        # (pyTibber >=0.31 merged these into update_info_and_price_info)
+        await home.update_info_and_price_info()
         address: str = home.address1
-
-        # Update and retrieve price info
-        await home.update_current_price_info()
         current_price_info: dict[str, Any] = home.current_price_info
 
         # Close the Tibber connection
@@ -165,8 +163,9 @@ class FetchTibber:
         # Fetch consumption data
         await home.fetch_consumption_data()
 
-        # Update and retrieve price info
-        await home.update_price_info()
+        # Update and retrieve price info (pyTibber >=0.31 merged update_info
+        # and update_price_info into update_info_and_price_info)
+        await home.update_info_and_price_info()
         price_info: dict[str, Any] = home.price_total
 
         # Close the Tibber connection
