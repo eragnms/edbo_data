@@ -124,7 +124,17 @@ class FetchTibber:
         # (pyTibber >=0.31 merged these into update_info_and_price_info)
         await home.update_info_and_price_info()
         address: str = home.address1
-        current_price_info: dict[str, Any] = home.current_price_info
+
+        # pyTibber >=0.33 removed the `current_price_info` dict property and
+        # replaced it with `current_price_data()` returning a (price, time,
+        # rank) tuple. Build a dict with the same shape the rest of the app
+        # expects.
+        price_total, price_time, price_rank = home.current_price_data()
+        current_price_info: dict[str, Any] = {
+            "total": price_total,
+            "startsAt": price_time.isoformat() if price_time is not None else None,
+            "rank": price_rank,
+        }
 
         # Close the Tibber connection
         await tibber_connection.close_connection()
