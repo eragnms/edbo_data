@@ -18,6 +18,8 @@ while providing automatic resilience against SMHI outages.
 from __future__ import annotations
 
 import logging
+import time
+import urllib.error
 from typing import Any, Callable
 
 from smhi.smhi_lib import SmhiForecast  # type: ignore
@@ -47,6 +49,19 @@ def _read_config_value(config: Any, attr: str, default: str) -> str:
     if not value:
         return default
     return str(value).strip().lower()
+
+
+_TRANSIENT_HTTP_CODES = {502, 503, 504, 429}
+
+
+def _is_transient(exc: Exception | None) -> bool:
+    """Return True if the exception looks like a transient HTTP error."""
+    if exc is None:
+        return False
+    if isinstance(exc, urllib.error.HTTPError):
+        return exc.code in _TRANSIENT_HTTP_CODES
+    msg = str(exc)
+    return any(f"HTTP Error {c}" in msg for c in _TRANSIENT_HTTP_CODES)
 
 
 class WeatherProviderWithFallback(BaseForecastProvider):
@@ -92,34 +107,64 @@ class WeatherProviderWithFallback(BaseForecastProvider):
         return self._used_fallback
 
     def _try_each(
-        self, method_name: str, call: Callable[[BaseForecastProvider], Any]
+        self,
+        method_name: str,
+        call: Callable[[BaseForecastProvider], Any],
+        retries: int = 2,
+        retry_delay: float = 5.0,
     ) -> Any:
+        """Try each provider in order; on total failure, wait and retry.
+
+        One "round" iterates all providers. If every provider fails with a
+        transient HTTP error (5xx) the round is retried after *retry_delay*
+        seconds, up to *retries* extra rounds. Non-transient errors (e.g.
+        404) still cause an immediate skip to the next provider within a
+        round but do NOT block retries of other providers in later rounds.
+        """
         last_error: Exception | None = None
-        for idx, provider in enumerate(self._providers):
-            try:
-                result = call(provider)
-                if idx != self._active_index:
+
+        for attempt in range(1 + retries):
+            if attempt > 0:
+                self._log.info(
+                    "Retrying weather providers for %s "
+                    "(attempt %d/%d, waiting %.0fs)...",
+                    method_name,
+                    attempt + 1,
+                    1 + retries,
+                    retry_delay,
+                )
+                time.sleep(retry_delay)
+
+            for idx, provider in enumerate(self._providers):
+                try:
+                    result = call(provider)
+                    if idx != self._active_index:
+                        self._log.warning(
+                            "Weather provider fell back from '%s' to '%s' for %s",
+                            self._providers[self._active_index].name,
+                            provider.name,
+                            method_name,
+                        )
+                        self._active_index = idx
+                    # Any call that ends on a non-primary provider counts as
+                    # having used the fallback, even if subsequent calls succeed
+                    # on the primary again.
+                    if idx != 0:
+                        self._used_fallback = True
+                    return result
+                except Exception as exc:  # noqa: BLE001 - we want to try next provider
                     self._log.warning(
-                        "Weather provider fell back from '%s' to '%s' for %s",
-                        self._providers[self._active_index].name,
+                        "Weather provider '%s' failed on %s: %s",
                         provider.name,
                         method_name,
+                        exc,
                     )
-                    self._active_index = idx
-                # Any call that ends on a non-primary provider counts as
-                # having used the fallback, even if subsequent calls succeed
-                # on the primary again.
-                if idx != 0:
-                    self._used_fallback = True
-                return result
-            except Exception as exc:  # noqa: BLE001 - we want to try next provider
-                self._log.warning(
-                    "Weather provider '%s' failed on %s: %s",
-                    provider.name,
-                    method_name,
-                    exc,
-                )
-                last_error = exc
+                    last_error = exc
+
+            # If no error in this round was transient, retrying won't help.
+            if not _is_transient(last_error):
+                break
+
         assert last_error is not None
         raise last_error
 
